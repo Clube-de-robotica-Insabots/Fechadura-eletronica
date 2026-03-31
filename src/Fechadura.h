@@ -13,12 +13,12 @@ private:
     String senha;
 
 public:
-    Fechadura(int in1, int in2) : motor(in1, in2) {}
+    Fechadura(int in1, int in2);
     void trancar();
     void destrancar();
     bool autenticar(String senha);
     bool status();
-    void mudarStatuts();
+    void mudarStatus();
 };
 
 #endif
