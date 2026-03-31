@@ -5,7 +5,7 @@
 
 Fechadura::Fechadura(int in1, int in2) : motor(in1, in2)
 {
-
+    senha = PASS
 }
 
 void Fechadura::trancar()

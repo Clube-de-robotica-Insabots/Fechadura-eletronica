@@ -10,7 +10,7 @@ private:
     bool authenticated = false;
     bool trancada = true;
     Motor motor;
-    String senha = "1234";
+    String senha;
 
 public:
     Fechadura(int in1, int in2) : motor(in1, in2) {}
