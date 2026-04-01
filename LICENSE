@@ -290,8 +290,9 @@ to attach them to the start of each source file to most effectively
 convey the exclusion of warranty; and each file should have at least
 the "copyright" line and a pointer to where the full notice is found.
 
-    <one line to give the program's name and a brief idea of what it does.>
-    Copyright (C) <year>  <name of author>
+    A lightweight embedded C++ solution for controlling a homemade electronic locking mechanism. Built on top of an Arduino Nano microcontroller, the system uses a stepper motor to physically engage and 
+    disengage the lock, providing a low-cost and customizable alternative to commercial smart locks.
+    Copyright (C) 2026  Clube de Robótica Insabots 
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
