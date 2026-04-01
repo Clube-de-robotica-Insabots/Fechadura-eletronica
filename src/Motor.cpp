@@ -3,24 +3,28 @@
 
 Motor::Motor(int in1, int in2)
 {
-    In1 = in1;
-    In2 = in2;
-    pinMode(In1, OUTPUT);
-    pinMode(In2, OUTPUT);
+    this->in1 = in1;
+    this->in2 = in2;
+}
+
+void Motor::begin()
+{
+    pinMode(this->in1, OUTPUT);
+    pinMode(this->in2, OUTPUT);
 }
 
 void Motor::Frente(){
-    digitalWrite(In1, HIGH);
-    digitalWrite(In2, LOW);
+    digitalWrite(this->in1, HIGH);
+    digitalWrite(this->in2, LOW);
 }
 
 void Motor::Tras(){
-    digitalWrite(In1, LOW);
-    digitalWrite(In2, HIGH);
+    digitalWrite(this->in1, LOW);
+    digitalWrite(this->in2, HIGH);
 }
 
 void Motor::Parar(){
-    digitalWrite(In1, LOW);
-    digitalWrite(In2, LOW);
+    digitalWrite(this->in1, LOW);
+    digitalWrite(this->in2, LOW);
 }
 

@@ -3,31 +3,20 @@
   "author": "Fechadura Eletrônica",
   "editor": "wokwi",
   "parts": [
-    {
-      "type": "wokwi-arduino-nano",
-      "id": "nano",
-      "top": 0,
-      "left": 0,
-      "attrs": {}
-    },
+    { "type": "wokwi-arduino-nano", "id": "nano", "top": 0, "left": 0, "attrs": {} },
     {
       "type": "wokwi-membrane-keypad",
       "id": "keypad",
       "top": -160,
       "left": 220,
-      "attrs": {
-        "columns": "3"
-      }
+      "attrs": { "columns": "3" }
     },
     {
       "type": "wokwi-pushbutton",
       "id": "btn1",
       "top": 160,
       "left": 240,
-      "attrs": {
-        "color": "green",
-        "key": "b"
-      }
+      "attrs": { "color": "green", "key": "b" }
     },
     {
       "type": "wokwi-led",
@@ -43,39 +32,27 @@
       "left": 240,
       "attrs": { "color": "blue" }
     },
-    {
-      "type": "wokwi-resistor",
-      "id": "r1",
-      "top": 260,
-      "left": 180,
-      "attrs": { "value": "220" }
-    },
-    {
-      "type": "wokwi-resistor",
-      "id": "r2",
-      "top": 320,
-      "left": 180,
-      "attrs": { "value": "220" }
-    }
+    { "type": "wokwi-resistor", "id": "r1", "top": 260, "left": 180, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r2", "top": 320, "left": 180, "attrs": { "value": "220" } }
   ],
   "connections": [
-    ["nano:5",  "keypad:R1", "green",  []],
-    ["nano:6",  "keypad:R2", "yellow", []],
-    ["nano:7",  "keypad:R3", "orange", []],
-    ["nano:8",  "keypad:R4", "purple", []],
-    ["nano:9",  "keypad:C1", "blue",   []],
-    ["nano:10", "keypad:C2", "cyan",   []],
-    ["nano:11", "keypad:C3", "white",  []],
-
-    ["nano:GND.1", "btn1:2.l", "black", []],
-    ["nano:4",     "btn1:1.r", "green", []],
-
-    ["nano:2",      "r1:1",        "orange", []],
-    ["r1:2",        "ledFrente:A", "orange", []],
-    ["ledFrente:K", "nano:GND.1",  "black",  []],
-
-    ["nano:3",    "r2:1",       "purple", []],
-    ["r2:2",      "ledTras:A",  "purple", []],
-    ["ledTras:K", "nano:GND.1", "black",  []]
-  ]
+    [ "nano:5", "keypad:R1", "green", [] ],
+    [ "nano:6", "keypad:R2", "yellow", [] ],
+    [ "nano:7", "keypad:R3", "orange", [] ],
+    [ "nano:8", "keypad:R4", "purple", [] ],
+    [ "nano:9", "keypad:C1", "blue", [] ],
+    [ "nano:10", "keypad:C2", "cyan", [] ],
+    [ "nano:11", "keypad:C3", "white", [] ],
+    [ "nano:GND.1", "btn1:2.l", "black", [] ],
+    [ "nano:4", "btn1:1.r", "green", [] ],
+    [ "r1:2", "ledFrente:A", "orange", [] ],
+    [ "ledFrente:K", "nano:GND.1", "black", [] ],
+    [ "r2:2", "ledTras:A", "purple", [] ],
+    [ "ledTras:K", "nano:GND.1", "black", [] ],
+    [ "r1:1", "nano:2", "green", [ "v0" ] ],
+    [ "r2:1", "nano:3", "green", [ "v-268.05", "h-103.2" ] ],
+    [ "ledFrente:C", "nano:GND.1", "green", [ "v0" ] ],
+    [ "ledTras:C", "nano:GND.1", "green", [ "v0" ] ]
+  ],
+  "dependencies": {}
 }

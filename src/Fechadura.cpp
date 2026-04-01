@@ -2,17 +2,22 @@
 #include "Motor.h"
 #include <Arduino.h>
 
-
 Fechadura::Fechadura(int in1, int in2) : motor(in1, in2)
 {
     senha = PASS;
     authenticated = false;
 }
 
+void Fechadura::begin()
+{
+    motor.begin();
+    Serial.println("Fechadura pronta!");
+}
+
 void Fechadura::trancar()
 {
     motor.Frente();
-    delay(1000);
+    delay(5000);
     motor.Parar();
 }
 

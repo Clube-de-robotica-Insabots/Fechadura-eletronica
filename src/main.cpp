@@ -1,11 +1,17 @@
 #include <Arduino.h>
 #include <Keypad.h>
 #include "Fechadura.h"
+
+//Definição dos pinos
 int pin1 = 2;
 int pin2 = 3;
-Fechadura fechadura(pin1, pin2);
 int botao = 4;
-String senhaEscrita;
+//Instancia da fechadura
+Fechadura fechadura(pin1, pin2);
+
+String senhaDigitada;
+
+//Configuração do teclado matricial
 const byte ROWS = 4;
 const byte COLS = 3;
 char keys[ROWS][COLS] = {
@@ -14,15 +20,15 @@ char keys[ROWS][COLS] = {
   {'7','8','9'},
   {'*','0','#'}
 };
-
 byte rowPins[ROWS] = {5, 6, 7, 8};
 byte colPins[COLS] = {9, 10, 11};
-
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
+//Função de configuração do Arduino e inicialização dos pinos
 void setup() {
-  pinMode(botao, INPUT_PULLUP);
   Serial.begin(9600);
+  fechadura.begin();
+  pinMode(botao, INPUT_PULLUP);
 }
 
 void loop() {
@@ -42,11 +48,12 @@ void loop() {
     delay(2000);
   }
 
-  // Verificar a senha para destrancar pelo lado de fora, e verfica se o botão foi pressionado para destrancar
+  // Verificar a senha para destrancar pelo lado de fora
   char key = keypad.getKey();
   if (key) {
+    // Verificar se a tecla pressionada é '#' para validar a senha ou '*' para limpar a senha digitada
     if (key == '#') {
-      if (fechadura.autenticar(senhaEscrita))
+      if (fechadura.autenticar(senhaDigitada))
         {
           Serial.println("Senha correta!");
           fechadura.mudarStatus();
@@ -57,16 +64,17 @@ void loop() {
         {
           Serial.println("Senha incorreta!");
         }
-        senhaEscrita = "";
+        senhaDigitada = "";
     }
     else if (key == '*') {
-      senhaEscrita = "";
+      senhaDigitada = "";
       Serial.println("Senha limpa!");
     }
+    // Se for um número, adicionar à senha digitada
     else {
       delay(200);
-      senhaEscrita += key;
-      Serial.print(senhaEscrita);
+      senhaDigitada += key;
+      Serial.print(senhaDigitada);
       Serial.println("\n");
     }
   }

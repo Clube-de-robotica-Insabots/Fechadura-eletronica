@@ -6,10 +6,11 @@
 class Motor
 {
 private:
-    int In1;
-    int In2;
+    int in1;
+    int in2;
 public:
     Motor(int in1, int in2);
+    void begin();
     void Frente();
     void Tras();
     void Parar();
