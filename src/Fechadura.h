@@ -10,18 +10,20 @@ private:
     int in2;
     bool authenticated;
     String senha;
+    int buzzer;
     void motorIrParaFrente();
     void motorIrParaTras();
     void motorParar();
 
 public:
-    Fechadura(int in1, int in2);
+    Fechadura(int in1, int in2, int buzzer);
     void begin();
     void trancar();
     void destrancar();
     bool autenticar(String senha);
     bool statusDeAuth();
     void mudarStatusDeAuth();
+    void biparBuzzer();
 };
 
 #endif
