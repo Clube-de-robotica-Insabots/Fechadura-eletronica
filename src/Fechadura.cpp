@@ -44,7 +44,7 @@ bool Fechadura::autenticar(String senha)
     return senha == this->senha;
 }
 
-bool Fechadura::statusDeAuth()
+bool Fechadura::statusDaAutenticacao()
 {
     return authenticated;
 }

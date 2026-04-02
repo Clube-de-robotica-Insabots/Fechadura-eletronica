@@ -21,7 +21,7 @@ public:
     void trancar();
     void destrancar();
     bool autenticar(String senha);
-    bool statusDeAuth();
+    bool statusDaAutenticacao();
     void mudarStatusDeAuth();
     void biparBuzzer();
 };
