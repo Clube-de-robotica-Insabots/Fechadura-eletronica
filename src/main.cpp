@@ -3,9 +3,10 @@
 #include "Fechadura.h"
 
 //Definição dos pinos
-int pin1 = 2;
-int pin2 = 3;
+int pin1 = 3;
+int pin2 = 2;
 int botao = 4;
+int buzzer = 12;
 //Instancia da fechadura
 Fechadura fechadura(pin1, pin2);
 
@@ -28,36 +29,48 @@ Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 void setup() {
   Serial.begin(9600);
   fechadura.begin();
-  fechadura.trancar();
-  pinMode(botao, INPUT_PULLUP);
+  pinMode(botao, INPUT);
+  pinMode(buzzer, OUTPUT);
+  digitalWrite(buzzer, HIGH);
 }
 
 void loop() {
   // Verificar o estado do botão e da fechadura para trancar ou destrancar pelo lado de dentro
-  if (digitalRead(botao) == LOW  && fechadura.status() == false)
+  if (digitalRead(botao) == HIGH  && fechadura.statusDeAuth() == false)
   { 
-    Serial.println("Destrancando...");
+    delay(50);
+    Serial.println("Destrancar...");
+    digitalWrite(buzzer, LOW);
+    delay(100);
+    digitalWrite(buzzer, HIGH);
     fechadura.destrancar();
-    fechadura.mudarStatus();
-    delay(2000);
+    fechadura.mudarStatusDeAuth();
+    while (digitalRead(botao) == HIGH);
+    delay(50);
   }
-  else if (digitalRead(botao) == LOW && fechadura.status() == true)
+  else if (digitalRead(botao) == HIGH && fechadura.statusDeAuth() == true)
   {
-    Serial.println("Trancando...");
+    delay(50);
+    Serial.println("Trancar...");
+    digitalWrite(buzzer, LOW);
+    delay(100);
+    digitalWrite(buzzer, HIGH);
     fechadura.trancar();
-    fechadura.mudarStatus();
-    delay(2000);
+    fechadura.mudarStatusDeAuth();
+    while (digitalRead(botao) == HIGH);
+    delay(50);
   }
 
   // Verificar a senha para destrancar pelo lado de fora
   char key = keypad.getKey();
-  if (key) {
+  if (key && fechadura.statusDeAuth() == false) {
     // Verificar se a tecla pressionada é '#' para validar a senha ou '*' para limpar a senha digitada
     if (key == '#') {
       if (fechadura.autenticar(senhaDigitada))
         {
           Serial.println("Senha correta!");
-          fechadura.mudarStatus();
+          Serial.println("Destrancando...");
+          fechadura.mudarStatusDeAuth();
           fechadura.destrancar();
         }
 
@@ -75,8 +88,20 @@ void loop() {
     else {
       delay(200);
       senhaDigitada += key;
-      Serial.print(senhaDigitada);
-      Serial.println("\n");
+      digitalWrite(buzzer, LOW);
+      delay(100);
+      digitalWrite(buzzer, HIGH);
+      Serial.println(senhaDigitada);
     }
   }
+
+  else if(fechadura.statusDeAuth() == true){
+    Serial.println("Usuário já autenticado");
+    if (key == '#'){
+      fechadura.destrancar();
+      fechadura.mudarStatusDeAuth();
+    }
+  }
+
+
 }

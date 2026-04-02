@@ -2,17 +2,17 @@
 #define FECHADURA_H
 
 #include <Arduino.h>
-#include "Motor.h"
 
 class Fechadura
 {
 private:
     int in1;
     int in2;
-    bool authenticated = false;
-    bool trancada = true;
-    Motor motor;
+    bool authenticated;
     String senha;
+    void motorIrParaFrente();
+    void motorIrParaTras();
+    void motorParar();
 
 public:
     Fechadura(int in1, int in2);
@@ -20,8 +20,8 @@ public:
     void trancar();
     void destrancar();
     bool autenticar(String senha);
-    bool status();
-    void mudarStatus();
+    bool statusDeAuth();
+    void mudarStatusDeAuth();
 };
 
 #endif

@@ -1,48 +1,71 @@
 #include "Fechadura.h"
-#include "Motor.h"
 #include <Arduino.h>
 
-Fechadura::Fechadura(int in1, int in2) : motor(in1, in2)
+// Método construtor
+Fechadura::Fechadura(int in1, int in2)
 {
+    this->in1 = in1;
+    this->in2 = in2;
     senha = PASS;
     authenticated = false;
 }
 
+// Métodos privados
+void Fechadura::motorIrParaFrente()
+{
+    digitalWrite(this->in1, HIGH);
+    digitalWrite(this->in2, LOW);
+}
+
+void Fechadura::motorIrParaTras()
+{
+    digitalWrite(this->in1, LOW);
+    digitalWrite(this->in2, HIGH);
+}
+
+void Fechadura::motorParar()
+{
+    digitalWrite(this->in1, LOW);
+    digitalWrite(this->in2, LOW);
+}
+
+// Metodos públicos
 void Fechadura::begin()
 {
-    motor.begin();
+    pinMode(this->in1, OUTPUT);
+    pinMode(this->in2, OUTPUT);
     Serial.println("Fechadura pronta!");
 }
 
 void Fechadura::trancar()
 {
-    motor.Frente();
+    motorIrParaFrente();
     delay(5000);
-    motor.Parar();
+    motorParar();
 }
 
 void Fechadura::destrancar()
 {
-    motor.Tras();
+    motorIrParaTras();
     delay(5000);
-    motor.Parar();
+    motorParar();
 }
 
 bool Fechadura::autenticar(String senha)
 {
-    if(senha.length() != 3)
+    if(senha.length() != 4)
     {
         return false;
     }
     return senha == this->senha;
 }
 
-bool Fechadura::status()
+bool Fechadura::statusDeAuth()
 {
     return authenticated;
 }
 
-void Fechadura::mudarStatus()
+void Fechadura::mudarStatusDeAuth()
 {
     authenticated = !authenticated;
 }
