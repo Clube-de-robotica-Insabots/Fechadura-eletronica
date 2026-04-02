@@ -10,7 +10,7 @@ void setup() {
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
   
-  Serial.println("=== TESTE DE PONTE H ===");
+  Serial.println("EXECUTANDO TESTE DA PONTE H");
   delay(1000);
 }
 
