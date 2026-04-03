@@ -24,20 +24,17 @@ byte rowPins[ROWS] = {5, 6, 7, 8};
 byte colPins[COLS] = {9, 10, 11};
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-// Variável para armazenar a senha digitada
-String senhaDigitada;
-
 // Funções auxiliares
-void adicionarDigitoASenha(char key){
-  senhaDigitada += key;
-  Serial.println(senhaDigitada);
+void adicionarDigitoASenha(char key, String *p){
+  *p += key;
+  Serial.println(*p);
 }
-void limparSenhaDigitada(){
-  senhaDigitada = "";
+void limparSenhaDigitada(String *p){
+  *p = "";
   Serial.println("Senha limpa.");
 }
-void verificarSenha(){
-  if (fechadura.autenticar(senhaDigitada)) {
+void verificarSenha(String *p){  
+  if (fechadura.autenticar(*p)){
     Serial.println("Senha correta! Destrancando...");
     fechadura.mudarStatusDeAuth();
     fechadura.destrancar();
@@ -49,21 +46,22 @@ void verificarSenha(){
 }
 void verificarTeclado(){
   // Verificar a senha para destrancar pelo lado de fora
+  static String senhaDigitada;
   char key = keypad.getKey();
   if (key && fechadura.statusDaAutenticacao() == false) {
     // Verificar se a tecla pressionada é '#' para validar a senha ou '*' para limpar a senha digitada
     switch (key){
       case '#':
-        verificarSenha();
-        limparSenhaDigitada();
+        verificarSenha(&senhaDigitada);
+        limparSenhaDigitada(&senhaDigitada);
         break;
 
       case '*':
-        limparSenhaDigitada();
+        limparSenhaDigitada(&senhaDigitada);
         break;
 
       default:
-        adicionarDigitoASenha(key);
+        adicionarDigitoASenha(key, &senhaDigitada);
         fechadura.biparBuzzer();
         break;
     }
@@ -76,13 +74,7 @@ void verificarTeclado(){
   }
 }
 bool verificarSeOBotaoEstaPressionado(){
-  int buttonState = digitalRead(botao);
-  if (buttonState == HIGH) {
-    return true;
-  }
-  else {
-    return false;
-  }
+  return digitalRead(botao) == HIGH;
 }
 
 // Função de configuração do Arduino e inicialização dos pinos
