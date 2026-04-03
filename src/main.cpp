@@ -95,14 +95,13 @@ void setup() {
 void loop() {
   verificarTeclado();
   if (verificarSeOBotaoEstaPressionado()){
-    if (fechadura.statusDaAutenticacao() == true){
+    if (fechadura.statusDaAutenticacao()){
       Serial.println("Botão pressionado! Trancando...");
       fechadura.trancar();
-      fechadura.mudarStatusDeAuth();
     }
     else {
       fechadura.destrancar();
-      fechadura.mudarStatusDeAuth();
     }
+    fechadura.mudarStatusDeAuth();
   }
 }
