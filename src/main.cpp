@@ -1,15 +1,16 @@
 #include <Arduino.h>
 #include <Keypad.h>
+#include <Bounce2.h>
 #include "Fechadura.h"
 
 //Definição dos pinos
 int pin1 = 3;
 int pin2 = 2;
-int botao = 4;
-int buzzer = 12;
+int botaoPin = 4;
+int buzzerPin = 12;
 
 //Instancia da fechadura
-Fechadura fechadura(pin1, pin2, buzzer);
+Fechadura fechadura(pin1, pin2, buzzerPin);
 
 //Configuração do teclado matricial
 const byte ROWS = 4;
@@ -23,6 +24,8 @@ char keys[ROWS][COLS] = {
 byte rowPins[ROWS] = {5, 6, 7, 8};
 byte colPins[COLS] = {9, 10, 11};
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
+
+Bounce2::Button button;
 
 // Funções auxiliares
 void adicionarDigitoASenha(char key, String *p){
@@ -73,20 +76,19 @@ void verificarTeclado(){
     }
   }
 }
-bool verificarSeOBotaoEstaPressionado(){
-  return digitalRead(botao) == HIGH;
-}
 
 // Função de configuração do Arduino e inicialização dos pinos
 void setup() {
   Serial.begin(9600);
   fechadura.begin();
-  pinMode(botao, INPUT);
+  button.attach(botaoPin, INPUT);
+  button.interval(25);
+  button.setPressedState(HIGH);
 }
 // Função de loop principal do Arduino
 void loop() {
   verificarTeclado();
-  if (verificarSeOBotaoEstaPressionado()){
+  if (button.pressed()){
     if (fechadura.statusDaAutenticacao()){
       Serial.println("Botão pressionado! Trancando...");
       fechadura.trancar();
