@@ -22,7 +22,7 @@ public:
     void destrancar();
     bool autenticar(String senha);
     bool statusDaAutenticacao();
-    void mudarStatusDeAuth();
+    void mudarStatusDeAuth(bool status);
     void biparBuzzer();
 };
 

@@ -24,14 +24,14 @@ void Fechadura::begin()
 void Fechadura::trancar()
 {
     motorIrParaFrente();
-    delay(5000);
+    delay(1000);
     motorParar();
 }
 
 void Fechadura::destrancar()
 {
     motorIrParaTras();
-    delay(5000);
+    delay(1000);
     motorParar();
 }
 
@@ -49,9 +49,9 @@ bool Fechadura::statusDaAutenticacao()
     return authenticated;
 }
 
-void Fechadura::mudarStatusDeAuth()
+void Fechadura::mudarStatusDeAuth(bool status)
 {
-    authenticated = !authenticated;
+    authenticated = status;
 }
 
 // Métodos privados

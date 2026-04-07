@@ -4,13 +4,13 @@
 #include "Fechadura.h"
 
 //Definição dos pinos
-int pin1 = 3;
-int pin2 = 2;
-int botaoPin = 4;
+int pin3 = 3;
+int pin4 = 4;
+int botaoPin = 2;
 int buzzerPin = 12;
 
 //Instancia da fechadura
-Fechadura fechadura(pin1, pin2, buzzerPin);
+Fechadura fechadura(pin3, pin4, buzzerPin);
 
 //Configuração do teclado matricial
 const byte ROWS = 4;
@@ -39,7 +39,7 @@ void limparSenhaDigitada(String *p){
 void verificarSenha(String *p){  
   if (fechadura.autenticar(*p)){
     Serial.println("Senha correta! Destrancando...");
-    fechadura.mudarStatusDeAuth();
+    fechadura.mudarStatusDeAuth(true);
     fechadura.destrancar();
   }
   else {
@@ -51,6 +51,7 @@ void verificarTeclado(){
   // Verificar a senha para destrancar pelo lado de fora
   static String senhaDigitada;
   char key = keypad.getKey();
+  if (!key) return;
   if (key && fechadura.statusDaAutenticacao() == false) {
     // Verificar se a tecla pressionada é '#' para validar a senha ou '*' para limpar a senha digitada
     switch (key){
@@ -71,8 +72,8 @@ void verificarTeclado(){
   }
   else {
     if (key == '#'){
-      fechadura.destrancar();
-      fechadura.mudarStatusDeAuth();
+      fechadura.trancar();
+      fechadura.mudarStatusDeAuth(false);
     }
   }
 }
@@ -87,15 +88,17 @@ void setup() {
 }
 // Função de loop principal do Arduino
 void loop() {
-  verificarTeclado();
-  if (button.pressed()){
+  verificarTeclado(); 
+  button.update();
+  if (button.rose()) {
     if (fechadura.statusDaAutenticacao()){
       Serial.println("Botão pressionado! Trancando...");
       fechadura.trancar();
+      fechadura.mudarStatusDeAuth(false);
     }
     else {
       fechadura.destrancar();
+      fechadura.mudarStatusDeAuth(true);
     }
-    fechadura.mudarStatusDeAuth();
   }
 }
