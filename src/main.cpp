@@ -5,9 +5,9 @@
 
 //Definição dos pinos
 int pin3 = 3;
-int pin4 = 4;
-int botaoPin = 2;
-int buzzerPin = 12;
+int pin4 = 2;
+int botaoPin = 12;
+int buzzerPin = 7;
 
 //Instancia da fechadura
 Fechadura fechadura(pin3, pin4, buzzerPin);
@@ -21,8 +21,8 @@ char keys[ROWS][COLS] = {
   {'7','8','9'},
   {'*','0','#'}
 };
-byte rowPins[ROWS] = {5, 6, 7, 8};
-byte colPins[COLS] = {9, 10, 11};
+byte rowPins[ROWS] = {4, 6, 9, 10};
+byte colPins[COLS] = {11, 5, 8};
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 Bounce2::Button button;
@@ -82,21 +82,22 @@ void verificarTeclado(){
 void setup() {
   Serial.begin(9600);
   fechadura.begin();
-  button.attach(botaoPin, INPUT);
-  button.interval(25);
-  button.setPressedState(HIGH);
+  button.attach(botaoPin, INPUT_PULLUP);
+  button.interval(100);
+  button.setPressedState(LOW);
 }
 // Função de loop principal do Arduino
 void loop() {
   verificarTeclado(); 
   button.update();
-  if (button.rose()) {
+  if (button.pressed()) {
     if (fechadura.statusDaAutenticacao()){
       Serial.println("Botão pressionado! Trancando...");
       fechadura.trancar();
       fechadura.mudarStatusDeAuth(false);
     }
     else {
+      Serial.println("Botão pressionado! Destrancando...");
       fechadura.destrancar();
       fechadura.mudarStatusDeAuth(true);
     }
