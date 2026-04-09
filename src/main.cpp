@@ -3,7 +3,7 @@
 #include <Bounce2.h>
 #include "Fechadura.h"
 #include <WiFi.h>
-#include <BlynkSimpleEsp32.h>
+#include <PubSubClient.h>
 //Definição dos pinos
 int pin3 = 3;
 int pin4 = 2;
@@ -12,7 +12,8 @@ int buzzerPin = 7;
 //Instancias de objetos
 Fechadura fechadura(pin3, pin4, buzzerPin);
 Bounce2::Button button;
-BlynkTimer timer;
+WiFiClient espClient;
+PubSubClient mqtt(espClient);
 
 //Configuração do teclado matricial
 const byte ROWS = 4;
@@ -28,28 +29,47 @@ byte colPins[COLS] = {11, 5, 8};
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
 // Funções de wifi e config para app
-void atualizarStatusApp() {
+void publicarStatus() {
   if (fechadura.statusDaAutenticacao()) {
-    Blynk.virtualWrite(V1, "🔓 Aberta");
+    mqtt.publish(TOPIC_STATUS, "ABERTA");
   } else {
-    Blynk.virtualWrite(V1, "🔒 Fechada");
+    mqtt.publish(TOPIC_STATUS, "FECHADA");
   }
 }
-BLYNK_WRITE(V0) {
-  int buttonState = param.asInt();
-  if (buttonState == 1 && fechadura.statusDaAutenticacao() == true) {
-    Serial.println("Botão do app pressionado! Trancando...");
-    fechadura.trancar();
-    Blynk.logEvent("fechadura_trancada");
-    fechadura.mudarStatusDeAuth(false);
-    }
-  else if (buttonState == 0 && fechadura.statusDaAutenticacao() == false) {
-    Serial.println("Botão do app pressionado! Destrancando...");
-    fechadura.destrancar();
-    Blynk.logEvent("fechadura_destrancada");
-    fechadura.mudarStatusDeAuth(true);
+void callbackMQTT(char* topic, byte* payload, unsigned int length) {
+  String mensagem = "";
+  for (int i = 0; i < length; i++) {
+    mensagem += (char)payload[i];
   }
-  atualizarStatusApp();
+  Serial.println("Comando recebido: " + mensagem);
+
+  if (mensagem == "DESTRANCAR" && !fechadura.statusDaAutenticacao()) {
+    Serial.println("App: Destrancando...");
+    fechadura.destrancar();
+    fechadura.mudarStatusDeAuth(true);
+    publicarStatus();
+  }
+  else if (mensagem == "TRANCAR" && fechadura.statusDaAutenticacao()) {
+    Serial.println("App: Trancando...");
+    fechadura.trancar();
+    fechadura.mudarStatusDeAuth(false);
+    publicarStatus();
+  }
+}
+
+void reconectarMQTT() {
+  while (!mqtt.connected()) {
+    Serial.print("Conectando ao broker MQTT...");
+    if (mqtt.connect(MQTT_CLIENT_ID)) {
+      Serial.println(" Conectado!");
+      mqtt.subscribe(TOPIC_COMANDO);
+      publicarStatus();
+    } else {
+      Serial.print(" Falhou, rc=");
+      Serial.println(mqtt.state());
+      delay(3000);
+    }
+  }
 }
 // Funções auxiliares
 void adicionarDigitoASenha(char key, String *p){
@@ -65,6 +85,7 @@ void verificarSenha(String *p){
     Serial.println("Senha correta! Destrancando...");
     fechadura.mudarStatusDeAuth(true);
     fechadura.destrancar();
+    publicarStatus();
   }
   else {
     Serial.println("Senha incorreta! Tente novamente.");
@@ -98,25 +119,39 @@ void verificarTeclado(){
     if (key == '#'){
       fechadura.trancar();
       fechadura.mudarStatusDeAuth(false);
+      publicarStatus();
     }
   }
 }
 // Função de configuração do Arduino e inicialização dos pinos
 void setup() {
   Serial.begin(115200);
-  Blynk.begin(BLYNK_AUTH_TOKEN, SSID_WIFI, PASSWORD_WIFI);
-  fechadura.begin();  Blynk.begin(BLYNK_AUTH_TOKEN, SSID_WIFI, PASSWORD_WIFI);
+  fechadura.begin();
+
+  WiFi.begin(SSID_WIFI, PASSWORD_WIFI);
+  Serial.print("Conectando ao Wi-Fi");
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("\nWi-Fi conectado! IP: " + WiFi.localIP().toString());
+
+  mqtt.setServer(MQTT_BROKER, MQTT_PORT);
+  mqtt.setCallback(callbackMQTT);
+
   button.attach(botaoPin, INPUT_PULLUP);
   button.interval(100);
   button.setPressedState(LOW);
-  timer.setInterval(2000L, atualizarStatusApp);
-  Serial.println("Fechadura pronta!");
+
+  Serial.println("Sistema pronto!");
 }
 // Função de loop principal do Arduino
 void loop() {
-  Blynk.run();
-  timer.run();
+  if (!mqtt.connected()) reconectarMQTT();
+  mqtt.loop();
+
   verificarTeclado(); 
+  
   button.update();
   if (button.pressed()) {
     if (fechadura.statusDaAutenticacao()){
@@ -129,5 +164,6 @@ void loop() {
       fechadura.destrancar();
       fechadura.mudarStatusDeAuth(true);
     }
+    publicarStatus();
   }
 }
