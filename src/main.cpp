@@ -31,8 +31,10 @@ Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 void atualizarStatusApp() {
   if (fechadura.statusDaAutenticacao()) {
     Blynk.virtualWrite(V1, "🔓 Aberta");
+    Blynk.logEvent("fechadura_destrancada");
   } else {
     Blynk.virtualWrite(V1, "🔒 Fechada");
+    Blynk.logEvent("fechadura_trancada");
   }
 }
 BLYNK_WRITE(V0) {
