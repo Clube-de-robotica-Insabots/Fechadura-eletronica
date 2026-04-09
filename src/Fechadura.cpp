@@ -15,10 +15,13 @@ Fechadura::Fechadura(int in1, int in2, int buzzer)
 void Fechadura::begin()
 {
     pinMode(this->in1, OUTPUT);
+    Serial.println("Pino in1 configurado como OUTPUT");
     pinMode(this->in2, OUTPUT);
+    Serial.println("Pino in2 configurado como OUTPUT");
     pinMode(this->buzzer, OUTPUT);
+    Serial.println("Pino buzzer configurado como OUTPUT");
     digitalWrite(this->buzzer, HIGH);
-    Serial.println("Fechadura pronta!");
+    Serial.println("Buzzer desligado");
 }
 
 void Fechadura::trancar()

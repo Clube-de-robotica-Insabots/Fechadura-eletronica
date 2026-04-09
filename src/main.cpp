@@ -2,15 +2,17 @@
 #include <Keypad.h>
 #include <Bounce2.h>
 #include "Fechadura.h"
-
+#include <WiFi.h>
+#include <BlynkSimpleEsp32.h>
 //Definição dos pinos
 int pin3 = 3;
 int pin4 = 2;
 int botaoPin = 12;
 int buzzerPin = 7;
-
-//Instancia da fechadura
+//Instancias de objetos
 Fechadura fechadura(pin3, pin4, buzzerPin);
+Bounce2::Button button;
+BlynkTimer timer;
 
 //Configuração do teclado matricial
 const byte ROWS = 4;
@@ -25,8 +27,29 @@ byte rowPins[ROWS] = {4, 6, 9, 10};
 byte colPins[COLS] = {11, 5, 8};
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-Bounce2::Button button;
-
+// Funções de wifi e config para app
+void atualizarStatusApp() {
+  if (fechadura.statusDaAutenticacao()) {
+    Blynk.virtualWrite(V1, "🔓 Aberta");
+  } else {
+    Blynk.virtualWrite(V1, "🔒 Fechada");
+  }
+}
+BLYNK_WRITE(V0) {
+  int buttonState = param.asInt();
+  if (buttonState == 1 && fechadura.statusDaAutenticacao() == true) {
+    Serial.println("Botão do app pressionado! Trancando...");
+    fechadura.trancar();
+    fechadura.mudarStatusDeAuth(false);
+    
+    }
+  else if (buttonState == 0 && fechadura.statusDaAutenticacao() == false) {
+    Serial.println("Botão do app pressionado! Destrancando...");
+    fechadura.destrancar();
+    fechadura.mudarStatusDeAuth(true);
+  }
+  atualizarStatusApp();
+}
 // Funções auxiliares
 void adicionarDigitoASenha(char key, String *p){
   *p += key;
@@ -77,17 +100,21 @@ void verificarTeclado(){
     }
   }
 }
-
 // Função de configuração do Arduino e inicialização dos pinos
 void setup() {
-  Serial.begin(9600);
-  fechadura.begin();
+  Serial.begin(115200);
+  Blynk.begin(BLYNK_AUTH_TOKEN, SSID_WIFI, PASSWORD_WIFI);
+  fechadura.begin();  Blynk.begin(BLYNK_AUTH_TOKEN, SSID_WIFI, PASSWORD_WIFI);
   button.attach(botaoPin, INPUT_PULLUP);
   button.interval(100);
   button.setPressedState(LOW);
+  timer.setInterval(2000L, atualizarStatusApp);
+  Serial.println("Fechadura pronta!");
 }
 // Função de loop principal do Arduino
 void loop() {
+  Blynk.run();
+  timer.run();
   verificarTeclado(); 
   button.update();
   if (button.pressed()) {
