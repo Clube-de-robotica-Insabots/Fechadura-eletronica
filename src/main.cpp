@@ -31,10 +31,8 @@ Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 void atualizarStatusApp() {
   if (fechadura.statusDaAutenticacao()) {
     Blynk.virtualWrite(V1, "🔓 Aberta");
-    Blynk.logEvent("fechadura_destrancada");
   } else {
     Blynk.virtualWrite(V1, "🔒 Fechada");
-    Blynk.logEvent("fechadura_trancada");
   }
 }
 BLYNK_WRITE(V0) {
@@ -42,12 +40,13 @@ BLYNK_WRITE(V0) {
   if (buttonState == 1 && fechadura.statusDaAutenticacao() == true) {
     Serial.println("Botão do app pressionado! Trancando...");
     fechadura.trancar();
+    Blynk.logEvent("fechadura_trancada");
     fechadura.mudarStatusDeAuth(false);
-    
     }
   else if (buttonState == 0 && fechadura.statusDaAutenticacao() == false) {
     Serial.println("Botão do app pressionado! Destrancando...");
     fechadura.destrancar();
+    Blynk.logEvent("fechadura_destrancada");
     fechadura.mudarStatusDeAuth(true);
   }
   atualizarStatusApp();
